@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Mapa de Puerto Interactivo con OpenStreetMap</title>
+    <title>PIMI - Puerto Interactivo Mapeado Integrable</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
@@ -37,63 +37,61 @@
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script>
-        // Inicializar el mapa
-        var map = L.map('map').setView([36.140969, -5.43849], 16);
-        
-        // Usar OpenStreetMap como capa base
+        var map = L.map('map').setView([36.1412, -5.4384], 15);
+
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
-        
-        // Añadir algunos marcadores de ejemplo para instalaciones del puerto
-        var wharfMarker = L.marker([36.7196, -4.4190]).addTo(map)
-            .bindPopup("<b>Muelle Principal</b><br>Longitud: 250m");
+
+        var markers = [];
+
+        map.on('click', function(e) {
+            // Crear el contenido del popup
+            var popupContent = `
+                <div>
+                    <h3>Coordenadas</h3>
+                    <p>Latitud: ${e.latlng.lat.toFixed(4)}</p>
+                    <p>Longitud: ${e.latlng.lng.toFixed(4)}</p>
+                    <hr>
+                    <h3>Crear marcador</h3>
+                    <form id="markerForm">
+                        <label for="markerName">Nombre:</label>
+                        <input type="text" id="markerName" required><br><br>
+                        <label for="markerDesc">Descripción:</label>
+                        <textarea id="markerDesc"></textarea><br><br>
+                        <button type="submit">Crear marcador</button>
+                    </form>
+                </div>
+            `;
             
-        var craneMarker = L.marker([36.7205, -4.4205]).addTo(map)
-            .bindPopup("<b>Grúa de carga</b><br>Capacidad: 50 ton");
-            
-        var warehouseMarker = L.marker([36.7188, -4.4215]).addTo(map)
-            .bindPopup("<b>Almacén portuario</b><br>Área: 5,000 m²");
-        
-        // Añadir un área de atraque
-        var dockArea = L.polygon([
-            [36.7200, -4.4180],
-            [36.7205, -4.4185],
-            [36.7195, -4.4195],
-            [36.7190, -4.4190]
-        ], {color: 'blue', fillOpacity: 0.2}).addTo(map)
-        .bindPopup("<b>Zona de atraque</b><br>Profundidad: 12m");
-        
-        // Control de capas
-        var baseLayers = {
-            "OpenStreetMap": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                maxZoom: 19,
-            })
-        };
-        
-        var overlays = {
-            "Muelle Principal": wharfMarker,
-            "Grúa de carga": craneMarker,
-            "Almacén": warehouseMarker,
-            "Zona de atraque": dockArea
-        };
-        
-        L.control.layers(baseLayers, overlays).addTo(map);
-        
-        // Añadir control de escala
-        L.control.scale().addTo(map);
-        
-        // Mostrar coordenadas al hacer clic
-        var popup = L.popup();
-        function onMapClick(e) {
-            popup
+            // Crear popup
+            var popup = L.popup()
                 .setLatLng(e.latlng)
-                .setContent("Coordenadas: " + e.latlng.toString())
+                .setContent(popupContent)
                 .openOn(map);
-        }
-        map.on('click', onMapClick);
+            
+            // Esperar a que el popup se renderice antes de agregar el event listener
+            setTimeout(() => {
+                document.getElementById('markerForm').addEventListener('submit', function(ev) {
+                    ev.preventDefault();
+                    
+                    // Obtener valores
+                    var name = document.getElementById('markerName').value;
+                    var desc = document.getElementById('markerDesc').value;
+                    
+                    // Crear marcador
+                    var newMarker = L.marker(e.latlng)
+                        .addTo(map)
+                        .bindPopup(`<b>${name}</b><br>${desc}`);
+                    
+                    // Añadir al array
+                    markers.push(newMarker);
+                    
+                    // Cerrar popup
+                    map.closePopup();
+                });
+            }, 100);
+        });
     </script>
 </body>
 </html>
