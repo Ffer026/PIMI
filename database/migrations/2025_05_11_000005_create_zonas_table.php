@@ -13,12 +13,8 @@ return new class extends Migration
             $table->foreignId('id_puerto')->constrained('puertos', 'id_puerto');
             $table->string('nombre', 100)->nullable(false);
             $table->string('codigo_zona', 10)->nullable();
-            $table->string('esquina_superior_izq')->nullable(false);
-            $table->decimal('inclinacion_grados', 5, 2)->default(0);
-            $table->integer('filas')->nullable(false);
-            $table->integer('contenedores_por_fila')->nullable(false);
-            $table->integer('longitud_contenedores')->nullable(false);
-            $table->decimal('separacion_entre_filas', 5, 2)->nullable(false);
+            $table->string('coordenadas_vertices')->nullable(false);
+            $table->integer('espacios_para_contenedores')->nullable(false);
             $table->integer('max_niveles_apilamiento')->default(4);
             $table->timestamp('fecha_creacion')->useCurrent();
             $table->timestamp('ultima_actualizacion')->useCurrent()->useCurrentOnUpdate();

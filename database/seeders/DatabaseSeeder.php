@@ -14,37 +14,33 @@ class DatabaseSeeder extends Seeder
             [
                 'nombre' => 'Puerto de Barcelona',
                 'codigo' => 'ESBCN',
-                'coordenadas_poligono' => '41.3478,2.1456;41.3489,2.1478;41.3495,2.1492;41.3501,2.1513;41.3490,2.1534;41.3478,2.1456',
+                'coordenadas_vertices' => '41.3456,2.1456;41.3467,2.1467;41.3478,2.1478',
                 'descripcion' => 'Principal puerto comercial de España en el Mediterráneo',
                 'direccion' => 'Moll de la Costa, s/n, 08039 Barcelona',
-                'telefono_contacto' => '+3493298590',
-                'activo' => true
+                'telefono_contacto' => '+34933295900'
             ],
             [
                 'nombre' => 'Puerto de Valencia',
                 'codigo' => 'ESVLC',
-                'coordenadas_poligono' => '39.4556,-0.3167;39.4568,-0.3189;39.4575,-0.3202;39.4581,-0.3223;39.4570,-0.3244;39.4556,-0.3167',
-                'descripcion' => 'Puerto más activo de España en tráfico de contenedores',
-                'direccion' => 'Muelle de la Aduana, s/n, 46024 Valencia',
-                'telefono_contacto' => '+3496273280',
-                'activo' => true
+                'coordenadas_vertices' => '39.4567,-0.3214;39.4578,-0.3225;39.4589,-0.3236',
+                'descripcion' => 'Uno de los puertos más importantes del Mediterráneo en tráfico de contenedores',
+                'direccion' => 'Avinguda del Muelle del Turia, s/n, 46024 Valencia',
+                'telefono_contacto' => '+34962632800'
             ],
             [
                 'nombre' => 'Puerto de Algeciras',
                 'codigo' => 'ESALG',
-                'coordenadas_poligono' => '36.1278,-5.4433;36.1289,-5.4455;36.1295,-5.4468;36.1301,-5.4489;36.1290,-5.4510;36.1278,-5.4433',
-                'descripcion' => 'Principal puerto del Estrecho de Gibraltar y uno de los más importantes de Europa',
-                'direccion' => 'Av. de la Hispanidad, s/n, 11207 Algeciras',
-                'telefono_contacto' => '+3495606840',
-                'activo' => true
+                'coordenadas_vertices' => '36.1234,-5.4321;36.1245,-5.4332;36.1256,-5.4343',
+                'descripcion' => 'Principal puerto de España en tráfico de mercancías',
+                'direccion' => 'Av. de la Hispanidad, s/n, 11207 Algeciras, Cádiz',
+                'telefono_contacto' => '+34956068800'
             ]
         ]);
-
-        // Seed para la tabla tipos_contenedor
+        
         DB::table('tipos_contenedor')->insert([
             [
                 'iso_code' => '20GP',
-                'descripcion' => 'Contenedor estándar 20 pies',
+                'descripcion' => 'Contenedor estándar de 20 pies',
                 'longitud_m' => 6.06,
                 'anchura_m' => 2.44,
                 'altura_m' => 2.59,
@@ -52,7 +48,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'iso_code' => '40GP',
-                'descripcion' => 'Contenedor estándar 40 pies',
+                'descripcion' => 'Contenedor estándar de 40 pies',
                 'longitud_m' => 12.19,
                 'anchura_m' => 2.44,
                 'altura_m' => 2.59,
@@ -60,7 +56,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'iso_code' => '40HQ',
-                'descripcion' => 'Contenedor High Cube 40 pies',
+                'descripcion' => 'Contenedor High Cube de 40 pies',
                 'longitud_m' => 12.19,
                 'anchura_m' => 2.44,
                 'altura_m' => 2.90,
@@ -68,138 +64,132 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'iso_code' => '45HQ',
-                'descripcion' => 'Contenedor High Cube 45 pies',
+                'descripcion' => 'Contenedor High Cube de 45 pies',
                 'longitud_m' => 13.72,
                 'anchura_m' => 2.44,
                 'altura_m' => 2.90,
                 'peso_max_kg' => 32500.00
-            ],
-            [
-                'iso_code' => '20TK',
-                'descripcion' => 'Contenedor tanque 20 pies',
-                'longitud_m' => 6.06,
-                'anchura_m' => 2.44,
-                'altura_m' => 2.59,
-                'peso_max_kg' => 30480.00
             ]
         ]);
 
-        // Seed para la tabla zonas
+        // Obtener el ID del Puerto de Barcelona
+        $puertoBarcelona = DB::table('puertos')->where('codigo', 'ESBCN')->first();
+        $puertoValencia = DB::table('puertos')->where('codigo', 'ESVLC')->first();
+
         DB::table('zonas')->insert([
             [
-                'id_puerto' => 1, // Puerto de Barcelona
-                'nombre' => 'Zona A - Terminal Norte',
-                'codigo_zona' => 'BARC-A',
-                'esquina_superior_izq' => '41.3478,2.1456',
-                'inclinacion_grados' => 0.00,
-                'filas' => 20,
-                'contenedores_por_fila' => 10,
-                'longitud_contenedores' => 40,
-                'separacion_entre_filas' => 2.50,
+                'id_puerto' => $puertoBarcelona->id_puerto,
+                'nombre' => 'Zona de contenedores Norte',
+                'codigo_zona' => 'BCN-N',
+                'coordenadas_vertices' => '41.3456,2.1456;41.3467,2.1467;41.3478,2.1478',
+                'espacios_para_contenedores' => 500,
                 'max_niveles_apilamiento' => 5,
-                'activa' => true,
                 'observaciones' => 'Zona para contenedores de importación'
             ],
             [
-                'id_puerto' => 1, // Puerto de Barcelona
-                'nombre' => 'Zona B - Terminal Sur',
-                'codigo_zona' => 'BARC-B',
-                'esquina_superior_izq' => '41.3460,2.1430',
-                'inclinacion_grados' => 1.50,
-                'filas' => 15,
-                'contenedores_por_fila' => 12,
-                'longitud_contenedores' => 20,
-                'separacion_entre_filas' => 2.00,
+                'id_puerto' => $puertoBarcelona->id_puerto,
+                'nombre' => 'Zona de contenedores Sur',
+                'codigo_zona' => 'BCN-S',
+                'coordenadas_vertices' => '41.3356,2.1356;41.3367,2.1367;41.3378,2.1378',
+                'espacios_para_contenedores' => 750,
                 'max_niveles_apilamiento' => 4,
-                'activa' => true,
                 'observaciones' => 'Zona para contenedores de exportación'
             ],
             [
-                'id_puerto' => 2, // Puerto de Valencia
-                'nombre' => 'Zona 1 - Terminal Principal',
-                'codigo_zona' => 'VAL-1',
-                'esquina_superior_izq' => '39.4556,-0.3167',
-                'inclinacion_grados' => 0.50,
-                'filas' => 30,
-                'contenedores_por_fila' => 15,
-                'longitud_contenedores' => 40,
-                'separacion_entre_filas' => 3.00,
+                'id_puerto' => $puertoValencia->id_puerto,
+                'nombre' => 'Terminal de contenedores Este',
+                'codigo_zona' => 'VLC-E',
+                'coordenadas_vertices' => '39.4567,-0.3214;39.4578,-0.3225;39.4589,-0.3236',
+                'espacios_para_contenedores' => 1200,
                 'max_niveles_apilamiento' => 6,
-                'activa' => true,
-                'observaciones' => 'Zona principal de almacenamiento'
-            ],
-            [
-                'id_puerto' => 3, // Puerto de Algeciras
-                'nombre' => 'Zona Este - Terminal de Transbordo',
-                'codigo_zona' => 'ALG-E',
-                'esquina_superior_izq' => '36.1278,-5.4433',
-                'inclinacion_grados' => 0.00,
-                'filas' => 25,
-                'contenedores_por_fila' => 20,
-                'longitud_contenedores' => 40,
-                'separacion_entre_filas' => 2.80,
-                'max_niveles_apilamiento' => 5,
-                'activa' => true,
-                'observaciones' => 'Zona para contenedores en tránsito'
+                'observaciones' => 'Principal terminal de contenedores del puerto'
             ]
         ]);
 
-        // Seed para la tabla contenedores
+        // Obtener IDs de zonas
+        $zonaBcnNorte = DB::table('zonas')->where('codigo_zona', 'BCN-N')->first();
+        $zonaBcnSur = DB::table('zonas')->where('codigo_zona', 'BCN-S')->first();
+        $zonaVlcEste = DB::table('zonas')->where('codigo_zona', 'VLC-E')->first();
+        
+        DB::table('espacios_contenedores')->insert([
+            // Espacios en Zona Norte de Barcelona
+            [
+                'id_zona' => $zonaBcnNorte->id_zona,
+                'nombre' => 'Fila A - Posiciones 1-50',
+                'codigo_espacio' => 'BCN-N-A',
+                'observaciones' => 'Espacios para contenedores refrigerados'
+            ],
+            [
+                'id_zona' => $zonaBcnNorte->id_zona,
+                'nombre' => 'Fila B - Posiciones 1-100',
+                'codigo_espacio' => 'BCN-N-B',
+                'observaciones' => 'Espacios para contenedores estándar'
+            ],
+            
+            // Espacios en Zona Sur de Barcelona
+            [
+                'id_zona' => $zonaBcnSur->id_zona,
+                'nombre' => 'Fila C - Posiciones 1-150',
+                'codigo_espacio' => 'BCN-S-C',
+                'observaciones' => 'Espacios para contenedores de exportación'
+            ],
+            
+            // Espacios en Valencia Este
+            [
+                'id_zona' => $zonaVlcEste->id_zona,
+                'nombre' => 'Bloque 1 - Posiciones 1-200',
+                'codigo_espacio' => 'VLC-E-1',
+                'observaciones' => 'Espacios prioritarios para contenedores High Cube'
+            ],
+            [
+                'id_zona' => $zonaVlcEste->id_zona,
+                'nombre' => 'Bloque 2 - Posiciones 1-300',
+                'codigo_espacio' => 'VLC-E-2',
+                'observaciones' => 'Espacios generales'
+            ]
+        ]);
+        
+        // Obtener tipos de contenedor
+        $tipo20GP = DB::table('tipos_contenedor')->where('iso_code', '20GP')->first();
+        $tipo40GP = DB::table('tipos_contenedor')->where('iso_code', '40GP')->first();
+        $tipo40HQ = DB::table('tipos_contenedor')->where('iso_code', '40HQ')->first();
+        
+        // Obtener espacios de contenedores
+        $espacioBcnNA = DB::table('espacios_contenedores')->where('codigo_espacio', 'BCN-N-A')->first();
+        $espacioVlcE1 = DB::table('espacios_contenedores')->where('codigo_espacio', 'VLC-E-1')->first();
+        
         DB::table('contenedores')->insert([
             [
-                'id_contenedor' => 'MSKU1234567',
-                'id_zona' => 1,
-                'iso_code' => '40HQ',
-                'fila' => 5,
-                'posicion' => 3,
-                'nivel' => 2,
-                'estado' => 'lleno',
-                'peso_actual_kg' => 24500.50,
-                'es_peligroso' => false
+                'tipo_contenedor_iso' => $tipo20GP->iso_code,
+                'espacio_contenedor_id' => $espacioBcnNA->id_espacios_contenedores,
+                'propietario' => 'Maersk Line',
+                'material_peligroso' => false,
+                'created_at' => now(),
+                'updated_at' => now()
             ],
             [
-                'id_contenedor' => 'TGHU7654321',
-                'id_zona' => 1,
-                'iso_code' => '40GP',
-                'fila' => 5,
-                'posicion' => 3,
-                'nivel' => 1,
-                'estado' => 'vacio',
-                'peso_actual_kg' => null,
-                'es_peligroso' => false
+                'tipo_contenedor_iso' => $tipo40GP->iso_code,
+                'espacio_contenedor_id' => $espacioBcnNA->id_espacios_contenedores,
+                'propietario' => 'MSC',
+                'material_peligroso' => true,
+                'created_at' => now(),
+                'updated_at' => now()
             ],
             [
-                'id_contenedor' => 'APHU9876543',
-                'id_zona' => 2,
-                'iso_code' => '20GP',
-                'fila' => 8,
-                'posicion' => 2,
-                'nivel' => 1,
-                'estado' => 'lleno',
-                'peso_actual_kg' => 18500.75,
-                'es_peligroso' => true
+                'tipo_contenedor_iso' => $tipo40HQ->iso_code,
+                'espacio_contenedor_id' => $espacioVlcE1->id_espacios_contenedores,
+                'propietario' => 'COSCO',
+                'material_peligroso' => false,
+                'created_at' => now(),
+                'updated_at' => now()
             ],
             [
-                'id_contenedor' => 'CAIU4567890',
-                'id_zona' => 3,
-                'iso_code' => '45HQ',
-                'fila' => 12,
-                'posicion' => 5,
-                'nivel' => 3,
-                'estado' => 'en_transito',
-                'peso_actual_kg' => 28900.25,
-                'es_peligroso' => false
-            ],
-            [
-                'id_contenedor' => 'BMOU3210987',
-                'id_zona' => 4,
-                'iso_code' => '40HQ',
-                'fila' => 7,
-                'posicion' => 9,
-                'nivel' => 2,
-                'estado' => 'inspeccion',
-                'peso_actual_kg' => 21000.00,
-                'es_peligroso' => false
+                'tipo_contenedor_iso' => $tipo40HQ->iso_code,
+                'espacio_contenedor_id' => null, // Contenedor sin ubicación asignada
+                'propietario' => 'Evergreen',
+                'material_peligroso' => false,
+                'created_at' => now(),
+                'updated_at' => now()
             ]
         ]);
     }
