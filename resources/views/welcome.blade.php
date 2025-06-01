@@ -143,12 +143,13 @@
                             }).addTo(map);
                             
                             polygon.bindPopup(`
-        <b>${zona.nombre}</b><br>
-        <small>Código: ${zona.codigo_zona || 'N/A'}</small><br>
-        Filas: ${zona.filas}<br>
-        Contenedores por fila: ${zona.contenedores_por_fila}<br>
-        Inclinación: ${zona.inclinacion_grados || 0}°
-    `);
+                                <b>${zona.nombre}</b><br>
+                                <small>Código: ${zona.codigo_zona || 'N/A'}</small><br>
+                                Filas: ${zona.filas}<br>
+                                Contenedores por fila: ${zona.contenedores_por_fila}<br>
+                                Inclinación: ${zona.inclinacion_grados || 0}°
+                                `
+                                );
                             
                             polygons.push(polygon);
                         } catch (e) {
@@ -176,8 +177,6 @@
                 ];
             });
         }
-
-
 
         // Cargar los datos al iniciar el mapa
         document.addEventListener('DOMContentLoaded', function() {
