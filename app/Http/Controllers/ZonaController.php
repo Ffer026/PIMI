@@ -2,40 +2,58 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Zona;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class ZonaController extends Controller
 {
-    // Obtener todas las zonas activas
+    /**
+     * Obtener todas las zonas
+     */
     public function index()
     {
-        return response()->json(
-            Zona::where('activa', true)->get()
-        );
+        $zonas = DB::table('zonas')->get();
+        return response()->json($zonas);
     }
 
-    // Crear una nueva zona
+    /**
+     * Crear una nueva zona
+     */
     public function store(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'id_puerto' => 'required|exists:puertos,id_puerto',
-            'nombre' => 'required|string|max:100',
+            'nombre' => 'required|string',
+            'codigo_zona' => 'nullable|string',
             'coordenadas_vertices' => 'required|string',
-            'espacios_para_contenedores' => 'required|integer|min:1'
+            'espacios_para_contenedores' => 'required|integer|min:1',
+            'max_niveles_apilamiento' => 'nullable|integer|min:1',
+            'observaciones' => 'nullable|string',
+            'activa' => 'boolean'
         ]);
 
-        $zona = Zona::create($request->all());
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
 
+        $data = $validator->validated();
+        $id = DB::table('zonas')->insertGetId([
+            ...$data,
+            'fecha_creacion' => now(),
+            'ultima_actualizacion' => now()
+        ]);
+
+        $zona = DB::table('zonas')->find($id);
         return response()->json($zona, 201);
     }
 
-    // Obtener los espacios de una zona específica
-    public function getEspacios($idZona)
+    /**
+     * Obtener espacios de una zona específica
+     */
+    public function getEspacios($id)
     {
-        $zona = Zona::findOrFail($idZona);
-        return response()->json(
-            $zona->espacios()->where('activa', true)->get()
-        );
+        $espacios = DB::table('espacios_contenedores')->where('id_zona', $id)->get();
+        return response()->json($espacios);
     }
 }

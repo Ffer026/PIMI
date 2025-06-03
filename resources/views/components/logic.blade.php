@@ -419,7 +419,7 @@
                     map() los convierte en elementos html
                     y join los concierte en un string, que ya se guarda en spacesList*/
                 const spacesList = response.data.map(espacio =>
-                    `<li><a href="/espacios/${espacio.id_espacios_contenedores}/contenedores">${espacio.nombre}</a> (${espacio.codigo_espacio})</li>`
+                    `<li><a href="/api/espacios/${espacio.id_espacios_contenedores}/contenedores">${espacio.nombre}</a> (${espacio.codigo_espacio})</li>`
                 ).join('');
 
                 const content = spacesList.length > 0 ? // Condición

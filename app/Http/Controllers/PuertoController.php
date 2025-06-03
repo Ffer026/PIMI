@@ -2,25 +2,26 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Puerto;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PuertoController extends Controller
 {
-    // Obtener todos los puertos activos
+    /**
+     * Obtener todos los puertos
+     */
     public function index()
     {
-        return response()->json(
-            Puerto::where('activo', true)->get()
-        );
+        $puertos = DB::table('puertos')->get();
+        return response()->json($puertos);
     }
 
-    // Obtener las zonas de un puerto específico
-    public function getZonas($idPuerto)
+    /**
+     * Obtener zonas de un puerto específico
+     */
+    public function getZonas($id)
     {
-        $puerto = Puerto::findOrFail($idPuerto);
-        return response()->json(
-            $puerto->zonas()->where('activa', true)->get()
-        );
+        $zonas = DB::table('zonas')->where('id_puerto', $id)->get();
+        return response()->json($zonas);
     }
 }

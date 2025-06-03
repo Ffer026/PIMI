@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\PuertoController;
 use App\Http\Controllers\ZonaController;
 use App\Http\Controllers\EspacioController;
+use App\Http\Controllers\ContenedorController;
 
 use Illuminate\Support\Facades\DB;
 
@@ -18,9 +19,24 @@ Route::get('/zonas', [ZonaController::class, 'index']); // Obtener todas las zon
 Route::post('/zonas', [ZonaController::class, 'store']); // Crear una nueva zona
 Route::get('/zonas/{id}/espacios', [ZonaController::class, 'getEspacios']); // Obtener espacios de una zona
 
-// Rutas para Espacios
-Route::post('/espacios', [EspacioController::class, 'store']); // Crear un nuevo espacio
+// Contenedor routes
+Route::post('/api/contenedores', function (Request $request) {
+    $data = $request->validate([
+        'tipo_contenedor_iso' => 'required|exists:tipos_contenedor,iso_code',
+        'espacio_contenedor_id' => 'required|exists:espacios_contenedores,id_espacios_contenedores',
+        'propietario' => 'required|string|max:100',
+        'material_peligroso' => 'boolean'
+    ]);
+    
+    $contenedor = \App\Models\Contenedor::create($data);
+    return response()->json($contenedor, 201);
+});
 
+Route::delete('/api/contenedores/{id}', function ($id) {
+    $contenedor = \App\Models\Contenedor::findOrFail($id);
+    $contenedor->delete();
+    return response()->json(['message' => 'Contenedor eliminado correctamente'], 200);
+});
 
 Route::get('/', function () {
     return view('welcome');
@@ -66,7 +82,7 @@ Route::get('/api/zonas', function (Request $request) {
 
 Route::post('/api/zonas', function (Request $request) {
     $data = $request->validate([
-        'id_puerto' => 'required|exists:puertos,id',
+        'id_puerto' => 'required|exists:puertos,id_puerto',
         'nombre' => 'required|string',
         'codigo_zona' => 'nullable|string',
         'coordenadas_vertices' => 'required|string',
@@ -82,7 +98,7 @@ Route::post('/api/zonas', function (Request $request) {
         'ultima_actualizacion' => now()
     ]);
     
-    $zona = DB::table('zonas')->find($id);
+    $zona = DB::table('zonas')->where('id_zona', $id)->first();
     return response()->json($zona, 201);
 });
 
@@ -93,26 +109,35 @@ Route::get('/api/zonas/{id}/espacios', function ($id) {
 
 // Espacio routes
 Route::get('/api/espacios/{id}/contenedores', function ($id) {
-    $contenedores = DB::table('contenedores')->where('id_espacio_contenedor', $id)->get();
-    return response()->json($contenedores);
+    $contenedores = \App\Models\Contenedor::where('espacio_contenedor_id', $id)
+                        ->paginate(15); // Usamos paginate en lugar de get para la paginación
+    
+    return view('index', [ // Reemplaza 'tu_vista' con el nombre real de tu vista blade
+        'contenedores' => $contenedores,
+        'espacioId' => $id
+    ]);
 });
 
 Route::post('/api/espacios', function (Request $request) {
     $data = $request->validate([
-        'id_zona' => 'required|exists:zonas,id',
-        'nombre' => 'required|string',
-        'codigo_espacio' => 'nullable|string',
+        'id_zona' => 'required|exists:zonas,id_zona', // Aseguramos que la zona exista
+        'nombre' => 'required|string|max:100',        // Máximo 100 caracteres (como en la migración)
+        'codigo_espacio' => 'nullable|string|max:10', // Máximo 10 caracteres y nullable
         'observaciones' => 'nullable|string',
         'activa' => 'boolean'
     ]);
     
+    // Insertamos el espacio y obtenemos el ID de la PK generada
     $id = DB::table('espacios_contenedores')->insertGetId([
         ...$data,
-        'created_at' => now(),
-        'updated_at' => now()
+        'ultima_actualizacion' => now() // La migración usa timestamp automático, pero lo incluimos por claridad
     ]);
     
-    $espacio = DB::table('espacios_contenedores')->find($id);
+    // Recuperamos el espacio recién creado usando la PK correcta (id_espacios_contenedores)
+    $espacio = DB::table('espacios_contenedores')
+        ->where('id_espacios_contenedores', $id)
+        ->first();
+    
     return response()->json($espacio, 201);
 });
 

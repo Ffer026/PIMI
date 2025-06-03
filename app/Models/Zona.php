@@ -2,27 +2,42 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Zona extends Model
 {
+    use HasFactory;
+
+    protected $table = 'zonas';
     protected $primaryKey = 'id_zona';
-    
+
     protected $fillable = [
-        'id_puerto', 'nombre', 'codigo_zona', 'coordenadas_vertices',
-        'espacios_para_contenedores', 'max_niveles_apilamiento',
-        'observaciones', 'activa'
+        'id_puerto',
+        'nombre',
+        'codigo_zona',
+        'coordenadas_vertices',
+        'espacios_para_contenedores',
+        'max_niveles_apilamiento',
+        'observaciones',
+        'fecha_creacion',
+        'ultima_actualizacion',
+        'activa'
     ];
 
-    public function puerto(): BelongsTo
+    protected $casts = [
+        'fecha_creacion' => 'datetime',
+        'ultima_actualizacion' => 'datetime',
+        'activa' => 'boolean'
+    ];
+
+    public function puerto()
     {
-        return $this->belongsTo(Puerto::class, 'id_puerto');
+        return $this->belongsTo(Puerto::class, 'id_puerto', 'id_puerto');
     }
 
-    public function espacios(): HasMany
+    public function espacios()
     {
-        return $this->hasMany(Espacio::class, 'id_zona');
+        return $this->hasMany(Espacio::class, 'id_zona', 'id_zona');
     }
 }
