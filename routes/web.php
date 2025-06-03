@@ -2,7 +2,25 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
+//new
+use App\Http\Controllers\PuertoController;
+use App\Http\Controllers\ZonaController;
+use App\Http\Controllers\EspacioController;
+
 use Illuminate\Support\Facades\DB;
+
+// Rutas para Puertos
+Route::get('/puertos', [PuertoController::class, 'index']); // Obtener todos los puertos
+Route::get('/puertos/{id}/zonas', [PuertoController::class, 'getZonas']); // Obtener zonas de un puerto
+
+// Rutas para Zonas
+Route::get('/zonas', [ZonaController::class, 'index']); // Obtener todas las zonas
+Route::post('/zonas', [ZonaController::class, 'store']); // Crear una nueva zona
+Route::get('/zonas/{id}/espacios', [ZonaController::class, 'getEspacios']); // Obtener espacios de una zona
+
+// Rutas para Espacios
+Route::post('/espacios', [EspacioController::class, 'store']); // Crear un nuevo espacio
+
 
 Route::get('/', function () {
     return view('welcome');

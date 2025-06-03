@@ -20,7 +20,7 @@
     <div id="map"></div>
     
     <!-- Menú de control en la esquina superior derecha -->
-    <x-everything></x-everything>
+    <x-menu></x-menu>
 
     <x-imports></x-imports>
     
