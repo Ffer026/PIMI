@@ -2,84 +2,28 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
-//new
-use App\Http\Controllers\PuertoController;
-use App\Http\Controllers\ZonaController;
-use App\Http\Controllers\EspacioController;
-use App\Http\Controllers\ContenedorController;
-
 use Illuminate\Support\Facades\DB;
 
-// Rutas para Puertos
-Route::get('/puertos', [PuertoController::class, 'index']); // Obtener todos los puertos
-Route::get('/puertos/{id}/zonas', [PuertoController::class, 'getZonas']); // Obtener zonas de un puerto
-
-// Rutas para Zonas
-Route::get('/zonas', [ZonaController::class, 'index']); // Obtener todas las zonas
-Route::post('/zonas', [ZonaController::class, 'store']); // Crear una nueva zona
-Route::get('/zonas/{id}/espacios', [ZonaController::class, 'getEspacios']); // Obtener espacios de una zona
-
-// Contenedor routes
-Route::post('/api/contenedores', function (Request $request) {
-    $data = $request->validate([
-        'tipo_contenedor_iso' => 'required|exists:tipos_contenedor,iso_code',
-        'espacio_contenedor_id' => 'required|exists:espacios_contenedores,id_espacios_contenedores',
-        'propietario' => 'required|string|max:100',
-        'material_peligroso' => 'boolean'
-    ]);
-    
-    $contenedor = \App\Models\Contenedor::create($data);
-    return response()->json($contenedor, 201);
-});
-
-Route::delete('/api/contenedores/{id}', function ($id) {
-    $contenedor = \App\Models\Contenedor::findOrFail($id);
-    $contenedor->delete();
-    return response()->json(['message' => 'Contenedor eliminado correctamente'], 200);
-});
-
-Route::get('/', function () {
+Route::get('/', function () { //Página de inicio
     return view('welcome');
 });
 
-// Puerto routes
-Route::get('/api/puertos', function (Request $request) {
+// Rutas para Puertos
+Route::get('/api/puertos', function (Request $request) { // Devuelve todos los puertos en JSON
     $datos = DB::table('puertos')->get();
     return response()->json($datos);
 });
-
-Route::post('/api/puertos', function (Request $request) {
-    $data = $request->validate([
-        'nombre' => 'required|string',
-        'codigo' => 'required|string|unique:puertos',
-        'coordenadas_vertices' => 'required|string',
-        'descripcion' => 'nullable|string',
-        'direccion' => 'nullable|string',
-        'telefono_contacto' => 'nullable|string',
-        'activo' => 'boolean'
-    ]);
-    
-    $id = DB::table('puertos')->insertGetId([
-        ...$data,
-        'fecha_creacion' => now(),
-        'ultima_actualizacion' => now()
-    ]);
-    
-    $puerto = DB::table('puertos')->find($id);
-    return response()->json($puerto, 201);
-});
-
 Route::get('/api/puertos/{id}/zonas', function ($id) {
     $zonas = DB::table('zonas')->where('id_puerto', $id)->get();
     return response()->json($zonas);
 });
 
-// Zona routes
+
+// Rutas para Zonas
 Route::get('/api/zonas', function (Request $request) {
     $datos = DB::table('zonas')->get();
     return response()->json($datos);
 });
-
 Route::post('/api/zonas', function (Request $request) {
     $data = $request->validate([
         'id_puerto' => 'required|exists:puertos,id_puerto',
@@ -92,22 +36,40 @@ Route::post('/api/zonas', function (Request $request) {
         'activa' => 'boolean'
     ]);
     
+    //Genera el ID y lo inserta en la tabla 'zonas'
     $id = DB::table('zonas')->insertGetId([
         ...$data,
         'fecha_creacion' => now(),
         'ultima_actualizacion' => now()
     ]);
     
-    $zona = DB::table('zonas')->where('id_zona', $id)->first();
-    return response()->json($zona, 201);
+    $zona = DB::table('zonas')->where('id_zona', $id)->first(); //Recupera la zona
+    return response()->json($zona, 201); // Devuelve la zona con código 201 creado
 });
-
 Route::get('/api/zonas/{id}/espacios', function ($id) {
     $espacios = DB::table('espacios_contenedores')->where('id_zona', $id)->get();
     return response()->json($espacios);
 });
 
-// Espacio routes
+// Rutas para contenedores
+Route::post('/api/contenedores', function (Request $request) {
+    $data = $request->validate([
+        'tipo_contenedor_iso' => 'required|exists:tipos_contenedor,iso_code',
+        'espacio_contenedor_id' => 'required|exists:espacios_contenedores,id_espacios_contenedores',
+        'propietario' => 'required|string|max:100',
+        'material_peligroso' => 'boolean'
+    ]);
+    
+    $contenedor = \App\Models\Contenedor::create($data);
+    return response()->json($contenedor, 201);
+});
+Route::delete('/api/contenedores/{id}', function ($id) {
+    $contenedor = \App\Models\Contenedor::findOrFail($id);
+    $contenedor->delete();
+    return response()->json(['message' => 'Contenedor eliminado correctamente'], 200);
+});
+
+// Rutas para Espacios
 Route::get('/api/espacios/{id}/contenedores', function ($id) {
     $contenedores = \App\Models\Contenedor::where('espacio_contenedor_id', $id)
                         ->paginate(15); // Usamos paginate en lugar de get para la paginación
@@ -117,7 +79,6 @@ Route::get('/api/espacios/{id}/contenedores', function ($id) {
         'espacioId' => $id
     ]);
 });
-
 Route::post('/api/espacios', function (Request $request) {
     $data = $request->validate([
         'id_zona' => 'required|exists:zonas,id_zona', // Aseguramos que la zona exista
@@ -139,10 +100,4 @@ Route::post('/api/espacios', function (Request $request) {
         ->first();
     
     return response()->json($espacio, 201);
-});
-
-// Tipo contenedor routes
-Route::get('/api/tipos-contenedor', function () {
-    $tipos = DB::table('tipos_contenedor')->get();
-    return response()->json($tipos);
 });

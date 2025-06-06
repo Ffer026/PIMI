@@ -412,5 +412,6 @@ class DatabaseSeeder extends Seeder
                 'updated_at' => Carbon::now()
             ]
         ]);
+        \App\Models\Contenedor::factory(500)->create();
     }
 }

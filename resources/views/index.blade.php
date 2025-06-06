@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Contenedores en Espacio {{ $espacioId }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
@@ -99,62 +100,70 @@
                 </table>
             </div>
             
-            <!-- Paginación -->
-            <div class="d-flex justify-content-center mt-4">
-                {{ $contenedores->links() }}
+            <!-- Paginación minimalista -->
+            @if($contenedores->hasPages())
+            <div class="d-flex justify-content-between mt-4">
+                @if($contenedores->onFirstPage())
+                    <button class="btn btn-outline-secondary" disabled>Anterior</button>
+                @else
+                    <a href="{{ $contenedores->previousPageUrl() }}" class="btn btn-outline-primary">Anterior</a>
+                @endif
+                
+                @if($contenedores->hasMorePages())
+                    <a href="{{ $contenedores->nextPageUrl() }}" class="btn btn-outline-primary">Siguiente</a>
+                @else
+                    <button class="btn btn-outline-secondary" disabled>Siguiente</button>
+                @endif
             </div>
+            @endif
         @endif
-        
-        <a href="{{ url()->previous() }}" class="btn btn-secondary mt-3">Volver</a>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     
     <script>
-        $(document).ready(function() {
+        document.addEventListener('DOMContentLoaded', function() {
             // Manejar el envío del formulario
-            $('#addContenedorForm').on('submit', function(e) {
+            document.getElementById('addContenedorForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 
-                $.ajax({
-                    url: '/api/contenedores',
-                    method: 'POST',
-                    data: $(this).serialize(),
-                    success: function(response) {
+                const formData = new FormData(this);
+                
+                axios.post('/api/contenedores', formData)
+                    .then(function(response) {
                         // Recargar la página para ver el nuevo contenedor
                         window.location.reload();
-                    },
-                    error: function(xhr) {
-                        alert('Error al añadir el contenedor: ' + xhr.responseJSON.message);
-                    }
-                });
+                    })
+                    .catch(function(error) {
+                        alert('Error al añadir el contenedor: ' + (error.response?.data?.message || 'Error desconocido'));
+                    });
             });
             
             // Manejar la eliminación de contenedores
-            $('.delete-contenedor').on('click', function() {
-                if (!confirm('¿Está seguro de que desea eliminar este contenedor?')) {
-                    return;
-                }
-                
-                const contenedorId = $(this).data('id');
-                
-                $.ajax({
-                    url: `/api/contenedores/${contenedorId}`,
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    success: function(response) {
+            document.querySelectorAll('.delete-contenedor').forEach(button => {
+                button.addEventListener('click', function() {
+                    if (!confirm('¿Está seguro de que desea eliminar este contenedor?')) {
+                        return;
+                    }
+                    
+                    const contenedorId = this.getAttribute('data-id');
+                    
+                    axios.delete(`/api/contenedores/${contenedorId}`, {
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        }
+                    })
+                    .then(function(response) {
                         // Eliminar la fila de la tabla
-                        $(`#contenedor-${contenedorId}`).remove();
+                        document.getElementById(`contenedor-${contenedorId}`).remove();
                         
                         // Mostrar mensaje de éxito
                         alert('Contenedor eliminado correctamente');
-                    },
-                    error: function(xhr) {
-                        alert('Error al eliminar el contenedor: ' + xhr.responseJSON.message);
-                    }
+                    })
+                    .catch(function(error) {
+                        alert('Error al eliminar el contenedor: ' + (error.response?.data?.message || 'Error desconocido'));
+                    });
                 });
             });
         });

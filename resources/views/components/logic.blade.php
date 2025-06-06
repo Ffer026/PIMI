@@ -1,7 +1,5 @@
 <script>
     var map = L.map('map').setView([36.134079, -5.438576], 14); // Centro en Puerto de Algeciras
-    var clickMarker = null; // Marcador temporal para el punto de creación
-    var currentPopup = null; // Referencia al popup actual
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -12,13 +10,6 @@
     // Las llaves identifican un tipo de objeto similar a un Hashmap
     var portLayers = {};
     var zoneLayers = {};
-    //var containerLayers = {};
-
-    // Función para convertir string de coordenadas a formato Leaflet
-    function parseSingleCoordinate(coordString) {
-        const [lat, lng] = coordString.trim().split(' ');
-        return [parseFloat(lat), parseFloat(lng)];
-    }
 
     // Función para convertir coordenadas del string a array
     function convertirCoordenadas(strCoordenadas) {
@@ -36,18 +27,19 @@
     // Función para formatear fechas
     function formatDate(dateString) {
         if (!dateString) return 'No disponible';
-        const date = new Date(dateString);
+        const date = new Date(dateString); // De string a objeto Date
         return date.toLocaleDateString('es-ES', {
             year: 'numeric',
             month: 'long',
             day: 'numeric',
             hour: '2-digit',
             minute: '2-digit'
-        });
+        }); // Formato: 31 de diciembre de 2025, 12:00
     }
 
     // Función para crear el HTML del popup de puerto
-    function createPortPopupContent(puerto) {
+    function createPortPopupContent(puerto) { //Puerto es un objeto con los datos del puerto recién sacados de la API
+        //creation-form está nodisplay por defecto, se muestra al clickar en el botón de crear zona
         return `
                 <div class="popup-container">
                     <div class="popup-title">${puerto.nombre}</div>
@@ -114,7 +106,8 @@
     }
 
     // Función para crear el HTML del popup de zona
-    function createZonePopupContent(zona) {
+    function createZonePopupContent(zona) {// Zona es un objeto con los datos del puerto recién sacados de la API
+        // creation-form está nodisplay por defecto, se muestra al clickar en el botón de crear zona
         return `
                 <div class="popup-container">
                     <div class="popup-title">${zona.nombre}</div>
