@@ -74,7 +74,7 @@ Route::get('/api/espacios/{id}/contenedores', function ($id) {
     $contenedores = \App\Models\Contenedor::where('espacio_contenedor_id', $id)
                         ->paginate(15); // Usamos paginate en lugar de get para la paginación
     
-    return view('index', [ // Reemplaza 'tu_vista' con el nombre real de tu vista blade
+    return view('index', [
         'contenedores' => $contenedores,
         'espacioId' => $id
     ]);
@@ -82,7 +82,7 @@ Route::get('/api/espacios/{id}/contenedores', function ($id) {
 Route::post('/api/espacios', function (Request $request) {
     $data = $request->validate([
         'id_zona' => 'required|exists:zonas,id_zona', // Aseguramos que la zona exista
-        'nombre' => 'required|string|max:100',        // Máximo 100 caracteres (como en la migración)
+        'nombre' => 'required|string|max:100',        // Máximo 100 caracteres
         'codigo_espacio' => 'nullable|string|max:10', // Máximo 10 caracteres y nullable
         'observaciones' => 'nullable|string',
         'activa' => 'boolean'
@@ -94,7 +94,7 @@ Route::post('/api/espacios', function (Request $request) {
         'ultima_actualizacion' => now() // La migración usa timestamp automático, pero lo incluimos por claridad
     ]);
     
-    // Recuperamos el espacio recién creado usando la PK correcta (id_espacios_contenedores)
+    // Recuperamos el espacio recién creado
     $espacio = DB::table('espacios_contenedores')
         ->where('id_espacios_contenedores', $id)
         ->first();
